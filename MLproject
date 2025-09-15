@@ -1,0 +1,10 @@
+name: quant_test1
+entry_points:
+backtest:
+parameters:
+config: {type: string, default: configs/config.yaml}
+command: "python -m src.backtest.run_backtest --config {config}"
+fetch:
+parameters:
+config: {type: string, default: configs/config.yaml}
+command: "python -m src.data.make_prices --config {config}"

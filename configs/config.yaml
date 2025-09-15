@@ -1,0 +1,22 @@
+market:
+tickers: ["SPY", "QQQ"]
+start: "2015-01-01"
+end: "2025-01-01"
+interval: "1d"
+features:
+windows: [5, 10, 20]
+target: "next_ret" # 也可 "direction"
+cv:
+n_splits: 5
+embargo_days: 5
+trading:
+cost_bps: 5
+# 单边 0.05%
+slip_bps: 5
+max_weight: 1.0
+seed: 42
+paths:
+raw_prices: "data/raw/prices.parquet"
+features: "data/clean/features.parquet"
+equity_png: "reports/figures/equity_curve.png"
+metrics_json: "reports/tables/metrics.json"

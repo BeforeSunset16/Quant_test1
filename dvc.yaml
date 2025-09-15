@@ -1,0 +1,27 @@
+stages:
+fetch_data:
+cmd: python -m src.data.make_prices --config configs/config.yaml
+deps:
+- src/data/make_prices.py
+- configs/config.yaml
+outs:
+- data/raw/prices.parquet
+features:
+cmd: python -m src.data.prep_features --config configs/config.yaml
+deps:
+- src/data/prep_features.py
+- data/raw/prices.parquet
+- configs/config.yaml
+outs:
+- data/clean/features.parquet
+backtest:
+cmd: python -m src.backtest.run_backtest --config configs/config.yaml
+deps:
+- src/backtest/run_backtest.py
+- src/lib/metrics.py
+- src/lib/ts_cv.py
+- data/clean/features.parquet
+- configs/config.yaml
+outs:
+- reports/tables/metrics.json
+- reports/figures/equity_curve.png

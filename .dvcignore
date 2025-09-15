@@ -1,0 +1,4 @@
+mlruns/
+.venv/
+notebooks/
+reports/figures/*.png
