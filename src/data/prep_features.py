@@ -22,7 +22,7 @@ def add_features(df: pd.DataFrame, windows: list[int]) -> pd.DataFrame:
 def main(cfg_path: str):
     import warnings
     warnings.filterwarnings("ignore")
-    cfg = yaml.safe_load(open(cfg_path))
+    cfg = yaml.safe_load(open(cfg_path, "r", encoding="utf-8"))
     df = load_parquet(cfg["paths"]["raw_prices"])  # MultiIndex(date, ticker)
     feat = add_features(df, cfg["features"]["windows"])
     save_parquet(feat, cfg["paths"]["features"])

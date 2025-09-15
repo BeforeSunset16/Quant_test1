@@ -1,11 +1,17 @@
 from __future__ import annotations
 import pandas as pd
 from pathlib import Path
+
+
 def ensure_parent(path: str | Path) -> None:
-p = Path(path)
-p.parent.mkdir(parents=True, exist_ok=True)
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+
 def save_parquet(df: pd.DataFrame, path: str | Path) -> None:
-ensure_parent(path)
-df.to_parquet(path, index=True)
+    ensure_parent(path)
+    df.to_parquet(path, index=True)
+
+
 def load_parquet(path: str | Path) -> pd.DataFrame:
-return pd.read_parquet(path)
+    return pd.read_parquet(path)

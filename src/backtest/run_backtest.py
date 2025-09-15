@@ -86,7 +86,7 @@ def run(cfg: dict):
 
 
 def main(cfg_path: str):
-    cfg = yaml.safe_load(open(cfg_path))
+    cfg = yaml.safe_load(open(cfg_path, "r", encoding="utf-8"))
     mlflow.set_experiment("quant-6mo-baseline")
     with mlflow.start_run():
         mlflow.log_params({
