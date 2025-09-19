@@ -8,7 +8,9 @@ from src.utils.io import load_parquet, save_parquet
 
 def add_features(df: pd.DataFrame, windows: list[int]) -> pd.DataFrame:
     df = df.copy()
-    df["ret"] = df.groupby(level=1)["adj_close"].pct_change().fillna(0.0)
+    # 使用close列计算收益率（如果没有adj_close列）
+    price_col = "adj_close" if "adj_close" in df.columns else "close"
+    df["ret"] = df.groupby(level=1)[price_col].pct_change().fillna(0.0)
     for w in windows:
         df[f"ret_mean_{w}"] = df.groupby(level=1)["ret"].rolling(w).mean().reset_index(level=0, drop=True)
         df[f"ret_std_{w}"] = df.groupby(level=1)["ret"].rolling(w).std().reset_index(level=0, drop=True)

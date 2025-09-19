@@ -9,35 +9,37 @@ from src.utils.io import save_parquet
 import yfinance as yf
 
 def fetch_yf_multi(tickers: list[str], start: str, end: str, interval: str) -> pd.DataFrame:
+    # 注意：这里用 auto_adjust=False，保留原始 Close 和 Adj Close 两列（有的源才有）
     df = yf.download(
         tickers, start=start, end=end, interval=interval,
-        auto_adjust=True, progress=False
+        auto_adjust=False, progress=False
     )
-    # 兼容 pandas 新版 stack
+
+    # 兼容多票/单票的列结构
     if isinstance(df.columns, pd.MultiIndex):
         df = df.stack(level=1, future_stack=True).rename_axis(index=["date", "ticker"]).reset_index()
     else:
-        # 单票时 yfinance 返回普通列
         df = df.reset_index().rename(columns={"index": "date"})
         df["ticker"] = tickers[0]
 
     # 统一列名
-    rename_map = {
-        "Open": "open", "High": "high", "Low": "low", "Close": "close",
-        "Adj Close": "adj_close", "Volume": "volume",
-        "open": "open", "high": "high", "low": "low", "close": "close",
-        "adj close": "adj_close", "AdjClose": "adj_close", "Volume": "volume"
-    }
-    df = df.rename(columns=rename_map)
+    df = df.rename(columns={
+        "Open": "open", "High": "high", "Low": "low",
+        "Close": "close", "Adj Close": "adj_close", "Volume": "volume"
+    })
 
-    # 只保留我们需要的字段（不存在就忽略）
-    keep = [c for c in ["open", "high", "low", "close", "adj_close", "volume"] if c in df.columns]
-    if not keep:
-        return pd.DataFrame()  # 让上层处理空数据
-    df = df[["date", "ticker"] + keep].copy()
+    # 如果没有 adj_close（比如 auto_adjust=True 或源不提供），就用 close 代替
+    if "adj_close" not in df.columns and "close" in df.columns:
+        df["adj_close"] = df["close"]
+
+    # 只保留需要的列（存在哪列就留哪列）
+    keep = ["open", "high", "low", "close", "adj_close", "volume"]
+    have = [c for c in keep if c in df.columns]
+    df = df[["date", "ticker"] + have].copy()
     df["date"] = pd.to_datetime(df["date"])
     df = df.set_index(["date", "ticker"]).sort_index()
     return df
+
 
 
 def fetch_yf_one_by_one(tickers: list[str], start: str, end: str, interval: str) -> pd.DataFrame:
